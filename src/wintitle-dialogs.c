@@ -80,7 +80,7 @@ void wintitle_plugin_configure(XfcePanelPlugin *panel_plugin) {
 	// title-max-chars
 	widget = gtk_spin_button_new_with_range(TITLE_MAX_CHARS_MIN, TITLE_MAX_CHARS_MAX, 1.0);
 	bind_spinner_value_to(GTK_SPIN_BUTTON(widget), G_OBJECT(plugin), "title-max-chars");
-	gtk_container_add(GTK_CONTAINER(container), gtk_label_new("Window title max width (chars)"));
+	gtk_container_add(GTK_CONTAINER(container), gtk_label_new("Max window title width (chars)"));
 	gtk_container_add(GTK_CONTAINER(container), widget);
 
 	// spacing
