@@ -19,8 +19,15 @@
 #define WINTITLE_H
 
 #define DEFAULT_TITLE_MAX_CHARS 80
+#define TITLE_MAX_CHARS_MAX 200
+#define TITLE_MAX_CHARS_MIN 20
+
 #define DEFAULT_SPACING 5
-#define DEFAULT_MINI_ICON FALSE
+#define SPACING_MAX 20
+#define SPACING_MIN 0
+
+#define DEFAULT_USE_MINI_ICON FALSE
+
 #include <common/panel-private.h>
 #include <common/panel-utils.h>
 #include <common/panel-xfconf.h>
@@ -30,7 +37,10 @@
 #include <libxfce4panel/xfce-panel-plugin.h>
 #include <libxfce4util/libxfce4util.h>
 
-#include "wintitle-dialogs.h"
+G_BEGIN_DECLS
+
+typedef struct _WintitlePluginClass WintitlePluginClass;
+typedef struct _WintitlePlugin WintitlePlugin;
 
 #define XFCE_TYPE_WINTITLE_PLUGIN (wintitle_plugin_get_type())
 #define XFCE_WINTITLE_PLUGIN(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), XFCE_TYPE_WINTITLE_PLUGIN, WintitlePlugin))
@@ -41,6 +51,9 @@
 #define XFCE_WINTITLE_PLUGIN_GET_CLASS(obj) \
 	(G_TYPE_INSTANCE_GET_CLASS((obj), XFCE_TYPE_WINTITLE_PLUGIN), WintitlePluginClass)
 
-typedef struct _WintitlePluginClass WintitlePluginClass;
-typedef struct _WintitlePlugin WintitlePlugin;
+GType wintitle_plugin_get_type(void) G_GNUC_CONST;
+void wintitle_plugin_register_type(XfcePanelTypeModule *typeModule);
+
+G_END_DECLS
+
 #endif

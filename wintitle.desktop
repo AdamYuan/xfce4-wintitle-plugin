@@ -1,9 +1,8 @@
 [Xfce Panel]
 Type=X-XFCE-PanelPlugin
 Encoding=UTF-8
-Name=WindowTitle
-Comment=Window Title Plugin
-Icon=xfce4-display
+Name=Window Title
+Comment=Shows activate window title and icon.
 X-XFCE-Internal=true
 X-XFCE-Module=wintitle
 X-XFCE-API=2.0

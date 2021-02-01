@@ -15,8 +15,15 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-#include "wintitle.h"
 #include "wintitle-dialogs.h"
+#include "wintitle.h"
+
+enum {
+	PROP_0,
+	PROP_TITLE_MAX_CHARS,
+	PROP_SPACING,
+	PROP_USE_MINI_ICON,
+};
 
 struct _WintitlePluginClass {
 	XfcePanelPluginClass __parent__;
@@ -28,7 +35,7 @@ struct _WintitlePlugin {
 	// Configuration
 	guint title_max_chars;
 	guint spacing;
-	gboolean mini_icon;
+	gboolean use_mini_icon;
 
 	GtkWidget *box;
 	GtkWidget *icon;
@@ -44,13 +51,23 @@ XFCE_PANEL_DEFINE_PLUGIN(WintitlePlugin, wintitle_plugin);
 // STATE UPDATES //
 ///////////////////
 static void wintitle_plugin_update_window_title(WintitlePlugin *plugin) {
+	if (!plugin->window || !WNCK_IS_WINDOW(plugin->window)) {
+		gtk_label_set_text(GTK_LABEL(plugin->label), "");
+		return;
+	}
 	gtk_label_set_text(GTK_LABEL(plugin->label), wnck_window_get_name(plugin->window));
 }
 
 static void wintitle_plugin_update_window_icon(WintitlePlugin *plugin) {
+	if (!plugin->window || !WNCK_IS_WINDOW(plugin->window)) {
+		gtk_image_set_from_pixbuf(GTK_IMAGE(plugin->icon), NULL);
+		gtk_box_set_spacing(GTK_BOX(plugin->box), 0);
+		return;
+	}
 	GdkPixbuf *pixbuf = NULL;
 	if (!wnck_window_get_icon_is_fallback(plugin->window)) {
-		pixbuf = plugin->mini_icon ? wnck_window_get_mini_icon(plugin->window) : wnck_window_get_icon(plugin->window);
+		pixbuf =
+		    plugin->use_mini_icon ? wnck_window_get_mini_icon(plugin->window) : wnck_window_get_icon(plugin->window);
 	}
 	gtk_image_set_from_pixbuf(GTK_IMAGE(plugin->icon), pixbuf);
 	gtk_box_set_spacing(GTK_BOX(plugin->box), pixbuf ? plugin->spacing : 0);
@@ -84,18 +101,23 @@ static void wintitle_plugin_window_icon_changed(WnckWindow *window, WintitlePlug
 
 static void wintitle_plugin_active_window_changed(WnckScreen *screen, WnckWindow *previous_window,
                                                   WintitlePlugin *plugin) {
-	if (plugin->window) {
+	if (plugin->window && WNCK_IS_WINDOW(plugin->window)) {
 		g_signal_handlers_disconnect_by_func(G_OBJECT(plugin->window), G_CALLBACK(wintitle_plugin_window_name_changed),
 		                                     plugin);
 		g_signal_handlers_disconnect_by_func(G_OBJECT(plugin->window), G_CALLBACK(wintitle_plugin_window_icon_changed),
 		                                     plugin);
 	}
+
 	plugin->window = wnck_screen_get_active_window(screen);
 	wintitle_plugin_update_window_title(plugin);
 	wintitle_plugin_update_window_icon(plugin);
 
-	g_signal_connect(G_OBJECT(plugin->window), "name-changed", G_CALLBACK(wintitle_plugin_window_name_changed), plugin);
-	g_signal_connect(G_OBJECT(plugin->window), "icon-changed", G_CALLBACK(wintitle_plugin_window_icon_changed), plugin);
+	if (plugin->window && WNCK_IS_WINDOW(plugin->window)) {
+		g_signal_connect(G_OBJECT(plugin->window), "name-changed", G_CALLBACK(wintitle_plugin_window_name_changed),
+		                 plugin);
+		g_signal_connect(G_OBJECT(plugin->window), "icon-changed", G_CALLBACK(wintitle_plugin_window_icon_changed),
+		                 plugin);
+	}
 }
 
 ////////////////////////
@@ -114,19 +136,58 @@ static void wintitle_plugin_construct(XfcePanelPlugin *panel_plugin) {
 	xfce_panel_plugin_menu_show_about(panel_plugin);
 
 	const PanelProperty properties[] = {
-	    {"title-max-chars", G_TYPE_UINT}, {"spacing", G_TYPE_UINT}, {"mini-icon", G_TYPE_BOOLEAN}, {NULL}};
-	panel_properties_bind(NULL, G_OBJECT(plugin), xfce_panel_plugin_get_property_base(panel_plugin), properties, FALSE);
+	    {"title-max-chars", G_TYPE_UINT}, {"spacing", G_TYPE_UINT}, {"use-mini-icon", G_TYPE_BOOLEAN}, NULL};
+	panel_properties_bind(NULL, G_OBJECT(plugin), xfce_panel_plugin_get_property_base(panel_plugin), properties, TRUE);
 }
 
 static void wintitle_plugin_free_data(XfcePanelPlugin *panel_plugin) {
 	WintitlePlugin *plugin = XFCE_WINTITLE_PLUGIN(panel_plugin);
+	g_signal_handlers_disconnect_by_func(G_OBJECT(plugin->screen), G_CALLBACK(wintitle_plugin_active_window_changed),
+	                                     plugin);
+}
+
+static void wintitle_plugin_get_property(GObject *object, guint prop_id, GValue *value, GParamSpec *pspec) {
+	WintitlePlugin *plugin = XFCE_WINTITLE_PLUGIN(object);
+	switch (prop_id) {
+	case PROP_TITLE_MAX_CHARS:
+		g_value_set_uint(value, plugin->title_max_chars);
+		break;
+	case PROP_SPACING:
+		g_value_set_uint(value, plugin->spacing);
+		break;
+	case PROP_USE_MINI_ICON:
+		g_value_set_boolean(value, plugin->use_mini_icon);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+	}
+}
+
+static void wintitle_plugin_set_property(GObject *object, guint prop_id, const GValue *value, GParamSpec *pspec) {
+	WintitlePlugin *plugin = XFCE_WINTITLE_PLUGIN(object);
+	switch (prop_id) {
+	case PROP_TITLE_MAX_CHARS:
+		plugin->title_max_chars = g_value_get_uint(value);
+		gtk_label_set_max_width_chars(GTK_LABEL(plugin->label), plugin->title_max_chars);
+		break;
+	case PROP_SPACING:
+		plugin->spacing = g_value_get_uint(value);
+		gtk_box_set_spacing(GTK_BOX(plugin->box), gtk_image_get_pixbuf(GTK_IMAGE(plugin->icon)) ? plugin->spacing : 0);
+		break;
+	case PROP_USE_MINI_ICON:
+		plugin->use_mini_icon = g_value_get_boolean(value);
+		wintitle_plugin_update_window_icon(plugin);
+		break;
+	default:
+		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
+	}
 }
 
 static void wintitle_plugin_init(WintitlePlugin *plugin) {
 	// default properties
 	plugin->title_max_chars = DEFAULT_TITLE_MAX_CHARS;
 	plugin->spacing = DEFAULT_SPACING;
-	plugin->mini_icon = DEFAULT_MINI_ICON;
+	plugin->use_mini_icon = DEFAULT_USE_MINI_ICON;
 
 	plugin->box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, plugin->spacing);
 	plugin->icon = gtk_image_new();
@@ -159,10 +220,21 @@ static void wintitle_plugin_class_init(WintitlePluginClass *class) {
 	plugin_class->construct = wintitle_plugin_construct;
 	plugin_class->free_data = wintitle_plugin_free_data;
 	plugin_class->orientation_changed = wintitle_plugin_orientation_changed;
-	plugin_class->configure_plugin = NULL; // wintitle_plugin_configure;
+	plugin_class->configure_plugin = wintitle_plugin_configure;
 	plugin_class->about = wintitle_plugin_about;
 
 	GObjectClass *gobject_class = G_OBJECT_CLASS(class);
-	gobject_class->get_property = NULL; // wintitle_plugin_get_property;
-	gobject_class->set_property = NULL; // wintitle_plugin_set_property;
+	gobject_class->get_property = wintitle_plugin_get_property;
+	gobject_class->set_property = wintitle_plugin_set_property;
+	g_object_class_install_property(gobject_class, PROP_TITLE_MAX_CHARS,
+	                                g_param_spec_uint("title-max-chars", NULL, NULL, //
+	                                                  TITLE_MAX_CHARS_MIN, TITLE_MAX_CHARS_MAX, DEFAULT_TITLE_MAX_CHARS,
+	                                                  G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+	g_object_class_install_property(gobject_class, PROP_SPACING,
+	                                g_param_spec_uint("spacing", NULL, NULL, //
+	                                                  SPACING_MIN, SPACING_MAX, DEFAULT_SPACING,
+	                                                  G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+	g_object_class_install_property(gobject_class, PROP_USE_MINI_ICON,
+	                                g_param_spec_boolean("use-mini-icon", NULL, NULL, DEFAULT_USE_MINI_ICON, //
+	                                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }
