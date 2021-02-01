@@ -15,34 +15,14 @@
  * License along with this library; if not, write to the Free Software
  * Foundation, Inc., 51 Franklin Street, Fifth Floor, Boston, MA 02110-1301 USA
  */
-#define DEFAULT_TITLE_MAX_CHARS 80
-#define DEFAULT_SPACING 5
-#define DEFAULT_MINI_ICON FALSE
-#include <common/panel-private.h>
-#include <common/panel-utils.h>
-#include <common/panel-xfconf.h>
-#include <libwnck/libwnck.h>
-#include <libxfce4panel/xfce-panel-macros.h>
-#include <libxfce4panel/xfce-panel-plugin-provider.h>
-#include <libxfce4panel/xfce-panel-plugin.h>
-#include <libxfce4util/libxfce4util.h>
-
+#include "wintitle.h"
 #include "wintitle-dialogs.h"
 
-#define XFCE_TYPE_WINTITLE_PLUGIN (wintitle_plugin_get_type())
-#define XFCE_WINTITLE_PLUGIN(obj) (G_TYPE_CHECK_INSTANCE_CAST((obj), XFCE_TYPE_WINTITLE_PLUGIN, WintitlePlugin))
-#define XFCE_WINTITLE_PLUGIN_CLASS(class)                                                                              \
-	(G_TYPE_CHECK_CLASS_CAST((class), XFCE_TYPE_WINTITLE_PLUGIN, WintitlePluginClass))
-#define IS_XFCE_WINTITLE_PLUGIN(obj) (G_TYPE_CHECK_INSTANCE_TYPE((obj), XFCE_TYPE_WINTITLE_PLUGIN))
-#define IS_XFCE_WINTITLE_PLUGIN_CLASS(class) (G_TYPE_CHECK_CLASS_TYPE((class), XFCE_TYPE_WINTITLE_PLUGIN))
-#define XFCE_WINTITLE_PLUGIN_GET_CLASS(obj)                                                                            \
-	(G_TYPE_INSTANCE_GET_CLASS((obj), XFCE_TYPE_WINTITLE_PLUGIN), WintitlePluginClass)
-
-typedef struct _WintitlePluginClass {
+struct _WintitlePluginClass {
 	XfcePanelPluginClass __parent__;
-} WintitlePluginClass;
+};
 
-typedef struct _WintitlePlugin {
+struct _WintitlePlugin {
 	XfcePanelPlugin __parent__;
 
 	// Configuration
@@ -56,7 +36,7 @@ typedef struct _WintitlePlugin {
 
 	WnckScreen *screen;
 	WnckWindow *window;
-} WintitlePlugin;
+};
 
 XFCE_PANEL_DEFINE_PLUGIN(WintitlePlugin, wintitle_plugin);
 
