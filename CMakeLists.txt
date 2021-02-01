@@ -1,30 +1,53 @@
-CMAKE_MINIMUM_REQUIRED(VERSION 3.9)
-SET(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+cmake_minimum_required(VERSION 3.9)
+set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
 
-PROJECT(xfce4-wintitle-plugin C)
+project(xfce4-wintitle-plugin C)
+set(VERSION 0.0.1)
 
-SET(VERSION 0.0.1)
+find_package(PkgConfig REQUIRED)
+pkg_check_modules(GLIB REQUIRED glib-2.0)
+pkg_check_modules(GTK3 REQUIRED gtk+-3.0)
+pkg_check_modules(XFCE4UI REQUIRED libxfce4ui-2)
+pkg_check_modules(XFCE4PANEL REQUIRED libxfce4panel-2.0)
+pkg_check_modules(XFCE4UTIL REQUIRED libxfce4util-1.0)
+pkg_check_modules(XFCONF REQUIRED libxfconf-0)
+pkg_check_modules(WNCK REQUIRED libwnck-3.0)
 
-FIND_PACKAGE(PkgConfig REQUIRED)
-FIND_PACKAGE(Gettext REQUIRED)
-include(GNUInstallDirs)
+include_directories(${GLIB_INCLUDE_DIRS})
+include_directories(${GTK3_INCLUDE_DIRS})
+include_directories(${XFCE4UI_INCLUDE_DIRS})
+include_directories(${XFCE4PANEL_INCLUDE_DIRS})
+include_directories(${XFCE4UTIL_INCLUDE_DIRS})
+include_directories(${XFCONF_INCLUDE_DIRS})
+include_directories(${WNCK_INCLUDE_DIRS})
+include_directories(${CMAKE_CURRENT_SOURCE_DIR})
 
-PKG_CHECK_MODULES(GTK3 REQUIRED libxfce4panel-2.0 libxfce4ui-2 libwnck-3.0)
+link_directories(${GLIB_LIBRARY_DIRS})
+link_directories(${GTK3_LIBRARY_DIRS})
+link_directories(${XFCE4UI_LIBRARY_DIRS})
+link_directories(${XFCE4PANEL_LIBRARY_DIRS})
+link_directories(${XFCE4UTIL_LIBRARY_DIRS})
+link_directories(${XFCONF_LIBRARY_DIRS})
+link_directories(${WNCK_LIBRARY_DIRS})
 
-set(CMAKE_ARCHIVE_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_LIBRARY_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/lib)
-set(CMAKE_RUNTIME_OUTPUT_DIRECTORY ${CMAKE_BINARY_DIR}/bin)
-
-INCLUDE_DIRECTORIES(${GTK3_INCLUDE_DIRS})
-LINK_DIRECTORIES(${GTK3_LIBRARY_DIRS})
-ADD_DEFINITIONS(
+add_definitions(
 	${GTK3_CFLAGS_OTHER} 
 	-DWNCK_I_KNOW_THIS_IS_UNSTABLE=1
+	-DPACKAGE_NAME="wintitle"
 	)
 
-ADD_LIBRARY(wintitle SHARED wintitle.c)
+add_library(wintitle SHARED wintitle.c wintitle-dialogs.c)
 
-TARGET_LINK_LIBRARIES(wintitle ${GTK3_LIBRARIES})
+target_link_libraries(wintitle common)
+target_link_libraries(wintitle ${GLIB_LIBRARIES})
+target_link_libraries(wintitle ${GTK3_LIBRARIES})
+target_link_libraries(wintitle ${XFCE4UI_LIBRARY_DIRS})
+target_link_libraries(wintitle ${XFCE4PANEL_LIBRARY_DIRS})
+target_link_libraries(wintitle ${XFCE4UTIL_LIBRARY_DIRS})
+target_link_libraries(wintitle ${XFCONF_LIBRARY_DIRS})
+target_link_libraries(wintitle ${WNCK_LIBRARY_DIRS})
+
+add_subdirectory(common)
 
 INSTALL(TARGETS wintitle LIBRARY DESTINATION /usr/lib/xfce4/panel/plugins/)
 INSTALL(FILES wintitle.desktop DESTINATION /usr/share/xfce4/panel/plugins/)
