@@ -1,5 +1,6 @@
 cmake_minimum_required(VERSION 3.9)
 set(CMAKE_EXPORT_COMPILE_COMMANDS ON)
+set(CMAKE_C_STANDARD 11)
 
 project(xfce4-wintitle-plugin C)
 set(VERSION 0.0.1)
@@ -36,9 +37,15 @@ add_definitions(
 	-DPACKAGE_NAME="wintitle"
 	)
 
-add_library(wintitle SHARED wintitle.c wintitle-dialogs.c)
+add_library(wintitle SHARED 
+	common/panel-debug.c 
+	common/panel-utils.c 
+	common/panel-xfconf.c
 
-target_link_libraries(wintitle common)
+	src/wintitle.c 
+	src/wintitle-dialogs.c
+	)
+
 target_link_libraries(wintitle ${GLIB_LIBRARIES})
 target_link_libraries(wintitle ${GTK3_LIBRARIES})
 target_link_libraries(wintitle ${XFCE4UI_LIBRARY_DIRS})
@@ -46,8 +53,6 @@ target_link_libraries(wintitle ${XFCE4PANEL_LIBRARY_DIRS})
 target_link_libraries(wintitle ${XFCE4UTIL_LIBRARY_DIRS})
 target_link_libraries(wintitle ${XFCONF_LIBRARY_DIRS})
 target_link_libraries(wintitle ${WNCK_LIBRARY_DIRS})
-
-add_subdirectory(common)
 
 INSTALL(TARGETS wintitle LIBRARY DESTINATION /usr/lib/xfce4/panel/plugins/)
 INSTALL(FILES wintitle.desktop DESTINATION /usr/share/xfce4/panel/plugins/)
