@@ -18,9 +18,6 @@
 #include "wintitle-dialogs.h"
 #include "wintitle.h"
 
-#define BORDER 16
-#define GRID_PADDING 8
-
 void bind_spinner_value_to(GtkSpinButton *spinner, GObject *object, const gchar *property) {
 	guint value = 0;
 
@@ -73,7 +70,7 @@ void wintitle_plugin_configure(XfcePanelPlugin *panel_plugin) {
 
 	g_object_set_data(G_OBJECT(panel_plugin), "dialog", dialog);
 	g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(wintitle_plugin_configure_response), plugin);
-	gtk_container_set_border_width(GTK_CONTAINER(dialog), BORDER);
+	gtk_container_set_border_width(GTK_CONTAINER(dialog), 10);
 
 	GtkWidget *container = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 	GtkWidget *grid = gtk_grid_new();

@@ -130,8 +130,14 @@ static void wintitle_plugin_construct(XfcePanelPlugin *panel_plugin) {
 	xfce_panel_plugin_menu_show_about(panel_plugin);
 
 	const PanelProperty properties[] = {
-	    {"title-max-chars", G_TYPE_UINT}, {"spacing", G_TYPE_UINT}, {"use-mini-icon", G_TYPE_BOOLEAN}, NULL};
-	panel_properties_bind(NULL, G_OBJECT(plugin), xfce_panel_plugin_get_property_base(panel_plugin), properties, TRUE);
+	    {"title-max-chars", G_TYPE_UINT}, {"spacing", G_TYPE_UINT}, {"use-mini-icon", G_TYPE_BOOLEAN}, {NULL}};
+
+	xfce_panel_plugin_menu_show_configure(XFCE_PANEL_PLUGIN(plugin));
+
+	PANEL_UTILS_LINK_4UI
+	panel_properties_bind(NULL, G_OBJECT(plugin), xfce_panel_plugin_get_property_base(panel_plugin), properties, FALSE);
+
+	gtk_widget_queue_draw(GTK_WIDGET(panel_plugin));
 }
 
 static void wintitle_plugin_free_data(XfcePanelPlugin *panel_plugin) {
