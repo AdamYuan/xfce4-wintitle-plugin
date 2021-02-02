@@ -123,12 +123,6 @@ static void wintitle_plugin_active_window_changed(WnckScreen *screen, WnckWindow
 ////////////////////////
 // GENERAL XFCE STUFF //
 ////////////////////////
-
-static void wintitle_plugin_configure_plugin(XfcePanelPlugin *panel_plugin) {
-	WintitlePlugin *plugin = XFCE_WINTITLE_PLUGIN(panel_plugin);
-	panel_return_if_fail(IS_XFCE_WINTITLE_PLUGIN(plugin));
-}
-
 static void wintitle_plugin_construct(XfcePanelPlugin *panel_plugin) {
 	WintitlePlugin *plugin = XFCE_WINTITLE_PLUGIN(panel_plugin);
 

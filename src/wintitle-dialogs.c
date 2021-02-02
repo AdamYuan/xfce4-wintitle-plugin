@@ -59,6 +59,7 @@ static void wintitle_plugin_configure_response(GtkWidget *dialog, gint response,
 
 void wintitle_plugin_configure(XfcePanelPlugin *panel_plugin) {
 	WintitlePlugin *plugin = XFCE_WINTITLE_PLUGIN(panel_plugin);
+	panel_return_if_fail(IS_XFCE_WINTITLE_PLUGIN(plugin));
 
 	xfce_panel_plugin_block_menu(panel_plugin);
 
