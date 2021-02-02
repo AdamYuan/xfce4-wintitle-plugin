@@ -18,6 +18,9 @@
 #include "wintitle-dialogs.h"
 #include "wintitle.h"
 
+#define DIALOG_BORDER 16
+#define DIALOG_GRID_SPACING 8 
+
 void bind_spinner_value_to(GtkSpinButton *spinner, GObject *object, const gchar *property) {
 	guint value = 0;
 
@@ -70,16 +73,18 @@ void wintitle_plugin_configure(XfcePanelPlugin *panel_plugin) {
 
 	g_object_set_data(G_OBJECT(panel_plugin), "dialog", dialog);
 	g_signal_connect(G_OBJECT(dialog), "response", G_CALLBACK(wintitle_plugin_configure_response), plugin);
-	gtk_container_set_border_width(GTK_CONTAINER(dialog), 10);
+	gtk_container_set_border_width(GTK_CONTAINER(dialog), DIALOG_BORDER);
 
 	GtkWidget *container = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
 	GtkWidget *grid = gtk_grid_new();
+	gtk_grid_set_column_spacing(GTK_GRID(grid), DIALOG_GRID_SPACING);
+	gtk_grid_set_row_spacing(GTK_GRID(grid), DIALOG_GRID_SPACING);
 
 	GtkWidget *label = NULL, *widget = NULL;
 	// title-max-chars
 	widget = gtk_spin_button_new_with_range(TITLE_MAX_CHARS_MIN, TITLE_MAX_CHARS_MAX, 1.0);
 	bind_spinner_value_to(GTK_SPIN_BUTTON(widget), G_OBJECT(plugin), "title-max-chars");
-	label = gtk_label_new("Max title characters: ");
+	label = gtk_label_new("Max title characters");
 	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, 0, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), widget, 1, 0, 1, 1);
@@ -87,7 +92,7 @@ void wintitle_plugin_configure(XfcePanelPlugin *panel_plugin) {
 	// spacing
 	widget = gtk_spin_button_new_with_range(SPACING_MIN, SPACING_MAX, 1.0);
 	bind_spinner_value_to(GTK_SPIN_BUTTON(widget), G_OBJECT(plugin), "spacing");
-	label = gtk_label_new("Icon spacing (pixels): ");
+	label = gtk_label_new("Icon spacing (pixels)");
 	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, 1, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), widget, 1, 1, 1, 1);
@@ -95,7 +100,7 @@ void wintitle_plugin_configure(XfcePanelPlugin *panel_plugin) {
 	// use-mini-icon
 	widget = gtk_check_button_new_with_label("");
 	bind_toggle_value_to(GTK_TOGGLE_BUTTON(widget), G_OBJECT(plugin), "use-mini-icon");
-	label = gtk_label_new("Use mini icon: ");
+	label = gtk_label_new("Use mini icon");
 	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, 2, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), widget, 1, 2, 1, 1);
