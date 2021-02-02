@@ -75,24 +75,34 @@ void wintitle_plugin_configure(XfcePanelPlugin *panel_plugin) {
 	gtk_container_set_border_width(GTK_CONTAINER(dialog), BORDER);
 
 	GtkWidget *container = gtk_dialog_get_content_area(GTK_DIALOG(dialog));
+	GtkWidget *grid = gtk_grid_new();
 
-	GtkWidget *widget = NULL;
+	GtkWidget *label = NULL, *widget = NULL;
 	// title-max-chars
 	widget = gtk_spin_button_new_with_range(TITLE_MAX_CHARS_MIN, TITLE_MAX_CHARS_MAX, 1.0);
 	bind_spinner_value_to(GTK_SPIN_BUTTON(widget), G_OBJECT(plugin), "title-max-chars");
-	gtk_container_add(GTK_CONTAINER(container), gtk_label_new("Max window title width (chars)"));
-	gtk_container_add(GTK_CONTAINER(container), widget);
+	label = gtk_label_new("Max title characters: ");
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
+	gtk_grid_attach(GTK_GRID(grid), label, 0, 0, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), widget, 1, 0, 1, 1);
 
 	// spacing
 	widget = gtk_spin_button_new_with_range(SPACING_MIN, SPACING_MAX, 1.0);
 	bind_spinner_value_to(GTK_SPIN_BUTTON(widget), G_OBJECT(plugin), "spacing");
-	gtk_container_add(GTK_CONTAINER(container), gtk_label_new("Spacing between icon and title (pixels)"));
-	gtk_container_add(GTK_CONTAINER(container), widget);
+	label = gtk_label_new("Icon spacing (pixels): ");
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
+	gtk_grid_attach(GTK_GRID(grid), label, 0, 1, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), widget, 1, 1, 1, 1);
 
 	// use-mini-icon
-	widget = gtk_check_button_new_with_label("Use mini icon");
+	widget = gtk_check_button_new_with_label("");
 	bind_toggle_value_to(GTK_TOGGLE_BUTTON(widget), G_OBJECT(plugin), "use-mini-icon");
-	gtk_container_add(GTK_CONTAINER(container), widget);
+	label = gtk_label_new("Use mini icon: ");
+	gtk_label_set_xalign(GTK_LABEL(label), 0);
+	gtk_grid_attach(GTK_GRID(grid), label, 0, 2, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), widget, 1, 2, 1, 1);
+
+	gtk_container_add(GTK_CONTAINER(container), grid);
 
 	gtk_widget_show_all(dialog);
 }
