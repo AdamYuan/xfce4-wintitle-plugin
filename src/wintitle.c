@@ -126,8 +126,11 @@ static void wintitle_plugin_construct(XfcePanelPlugin *panel_plugin) {
 	xfce_panel_plugin_menu_show_configure(panel_plugin);
 	xfce_panel_plugin_menu_show_about(panel_plugin);
 
-	const PanelProperty properties[] = {
-	    {"title-max-chars", G_TYPE_UINT}, {"spacing", G_TYPE_UINT}, {"use-mini-icon", G_TYPE_BOOLEAN}, {NULL}};
+	const PanelProperty properties[] = {{"title-max-chars", G_TYPE_UINT},
+	                                    {"spacing", G_TYPE_UINT},
+	                                    {"use-mini-icon", G_TYPE_BOOLEAN},
+	                                    {"show-icon", G_TYPE_BOOLEAN},
+	                                    {NULL}};
 
 	xfce_panel_plugin_menu_show_configure(XFCE_PANEL_PLUGIN(plugin));
 
