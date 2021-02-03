@@ -18,12 +18,7 @@
 #include "wintitle-dialogs.h"
 #include "wintitle.h"
 
-enum {
-	PROP_0,
-	PROP_TITLE_MAX_CHARS,
-	PROP_SPACING,
-	PROP_USE_MINI_ICON,
-};
+enum { PROP_0, PROP_TITLE_MAX_CHARS, PROP_SPACING, PROP_USE_MINI_ICON, PROP_SHOW_ICON };
 
 struct _WintitlePluginClass {
 	XfcePanelPluginClass __parent__;
@@ -36,7 +31,9 @@ struct _WintitlePlugin {
 	guint title_max_chars;
 	guint spacing;
 	gboolean use_mini_icon;
+	gboolean show_icon;
 
+	// Widgets and Informations
 	GtkWidget *box;
 	GtkWidget *icon;
 	GtkWidget *label;
@@ -59,7 +56,7 @@ static void wintitle_plugin_update_window_title(WintitlePlugin *plugin) {
 }
 
 static void wintitle_plugin_update_window_icon(WintitlePlugin *plugin) {
-	if (!plugin->window || !WNCK_IS_WINDOW(plugin->window)) {
+	if (!plugin->show_icon || !plugin->window || !WNCK_IS_WINDOW(plugin->window)) {
 		gtk_image_set_from_pixbuf(GTK_IMAGE(plugin->icon), NULL);
 		gtk_box_set_spacing(GTK_BOX(plugin->box), 0);
 		return;
@@ -158,6 +155,9 @@ static void wintitle_plugin_get_property(GObject *object, guint prop_id, GValue 
 	case PROP_USE_MINI_ICON:
 		g_value_set_boolean(value, plugin->use_mini_icon);
 		break;
+	case PROP_SHOW_ICON:
+		g_value_set_boolean(value, plugin->show_icon);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
 	}
@@ -178,6 +178,10 @@ static void wintitle_plugin_set_property(GObject *object, guint prop_id, const G
 		plugin->use_mini_icon = g_value_get_boolean(value);
 		wintitle_plugin_update_window_icon(plugin);
 		break;
+	case PROP_SHOW_ICON:
+		plugin->show_icon = g_value_get_boolean(value);
+		wintitle_plugin_update_window_icon(plugin);
+		break;
 	default:
 		G_OBJECT_WARN_INVALID_PROPERTY_ID(object, prop_id, pspec);
 	}
@@ -188,6 +192,7 @@ static void wintitle_plugin_init(WintitlePlugin *plugin) {
 	plugin->title_max_chars = DEFAULT_TITLE_MAX_CHARS;
 	plugin->spacing = DEFAULT_SPACING;
 	plugin->use_mini_icon = DEFAULT_USE_MINI_ICON;
+	plugin->show_icon = DEFAULT_SHOW_ICON;
 
 	plugin->box = gtk_box_new(GTK_ORIENTATION_HORIZONTAL, plugin->spacing);
 	plugin->icon = gtk_image_new();
@@ -198,9 +203,7 @@ static void wintitle_plugin_init(WintitlePlugin *plugin) {
 	gtk_container_add(GTK_CONTAINER(plugin), plugin->box);
 	gtk_container_add(GTK_CONTAINER(plugin->box), plugin->icon);
 	gtk_container_add(GTK_CONTAINER(plugin->box), plugin->label);
-	gtk_widget_show(plugin->icon);
-	gtk_widget_show(plugin->label);
-	gtk_widget_show(plugin->box);
+	gtk_widget_show_all(plugin->box);
 
 	wintitle_plugin_update_orientation(plugin, xfce_panel_plugin_get_orientation(XFCE_PANEL_PLUGIN(plugin)));
 
@@ -236,5 +239,8 @@ static void wintitle_plugin_class_init(WintitlePluginClass *class) {
 	                                                  G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 	g_object_class_install_property(gobject_class, PROP_USE_MINI_ICON,
 	                                g_param_spec_boolean("use-mini-icon", NULL, NULL, DEFAULT_USE_MINI_ICON, //
+	                                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
+	g_object_class_install_property(gobject_class, PROP_SHOW_ICON,
+	                                g_param_spec_boolean("show-icon", NULL, NULL, DEFAULT_SHOW_ICON, //
 	                                                     G_PARAM_READWRITE | G_PARAM_STATIC_STRINGS));
 }

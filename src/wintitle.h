@@ -19,14 +19,15 @@
 #define WINTITLE_H
 
 #define DEFAULT_TITLE_MAX_CHARS 80
-#define TITLE_MAX_CHARS_MAX 200
 #define TITLE_MAX_CHARS_MIN 20
+#define TITLE_MAX_CHARS_MAX 400
 
 #define DEFAULT_SPACING 5
-#define SPACING_MAX 20
 #define SPACING_MIN 0
+#define SPACING_MAX 40
 
 #define DEFAULT_USE_MINI_ICON FALSE
+#define DEFAULT_SHOW_ICON TRUE
 
 #include <common/panel-private.h>
 #include <common/panel-utils.h>
