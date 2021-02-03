@@ -56,18 +56,21 @@ static void wintitle_plugin_update_window_title(WintitlePlugin *plugin) {
 }
 
 static void wintitle_plugin_update_window_icon(WintitlePlugin *plugin) {
-	if (!plugin->show_icon || !plugin->window || !WNCK_IS_WINDOW(plugin->window)) {
+	if (!plugin->show_icon || !plugin->window || !WNCK_IS_WINDOW(plugin->window) ||
+	    wnck_window_get_icon_is_fallback(plugin->window)) {
 		gtk_image_set_from_pixbuf(GTK_IMAGE(plugin->icon), NULL);
 		gtk_box_set_spacing(GTK_BOX(plugin->box), 0);
 		return;
 	}
-	GdkPixbuf *pixbuf = NULL;
-	if (!wnck_window_get_icon_is_fallback(plugin->window)) {
-		pixbuf =
-		    plugin->use_mini_icon ? wnck_window_get_mini_icon(plugin->window) : wnck_window_get_icon(plugin->window);
+	GdkPixbuf *pixbuf =
+	    plugin->use_mini_icon ? wnck_window_get_mini_icon(plugin->window) : wnck_window_get_icon(plugin->window);
+	if (!pixbuf) {
+		gtk_image_set_from_pixbuf(GTK_IMAGE(plugin->icon), NULL);
+		gtk_box_set_spacing(GTK_BOX(plugin->box), 0);
+		return;
 	}
 	gtk_image_set_from_pixbuf(GTK_IMAGE(plugin->icon), pixbuf);
-	gtk_box_set_spacing(GTK_BOX(plugin->box), pixbuf ? plugin->spacing : 0);
+	gtk_box_set_spacing(GTK_BOX(plugin->box), plugin->spacing);
 }
 
 static void wintitle_plugin_update_orientation(WintitlePlugin *plugin, GtkOrientation orientation) {
