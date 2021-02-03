@@ -45,6 +45,15 @@ gboolean wintitle_plugin_bind_toggle_value_to(GtkToggleButton *toggle, GObject *
 	return value;
 }
 
+gboolean wintitle_plugin_bind_switch_value_to(GtkSwitch *switch_, GObject *object, const gchar *property) {
+	gboolean value;
+	g_object_get(object, property, &value, NULL);
+	gtk_switch_set_active(switch_, value);
+	g_object_bind_property(G_OBJECT(switch_), "active", G_OBJECT(object), property,
+	                       G_BINDING_BIDIRECTIONAL | G_BINDING_SYNC_CREATE);
+	return value;
+}
+
 void wintitle_plugin_configure_response(GtkWidget *dialog, gint response, XfcePanelPlugin *panel_plugin) {
 	g_object_set_data(G_OBJECT(panel_plugin), "dialog", NULL);
 	xfce_panel_plugin_unblock_menu(panel_plugin);
@@ -84,13 +93,13 @@ void wintitle_plugin_configure(XfcePanelPlugin *panel_plugin) {
 	gtk_grid_attach(GTK_GRID(grid), widget, 1, 0, 1, 1);
 
 	// show-icon
-	GtkWidget *show_icon_toggle = gtk_check_button_new_with_label("");
+	GtkWidget *show_icon_switch = gtk_switch_new();
 	gboolean show_icon =
-	    wintitle_plugin_bind_toggle_value_to(GTK_TOGGLE_BUTTON(show_icon_toggle), G_OBJECT(plugin), "show-icon");
+	    wintitle_plugin_bind_switch_value_to(GTK_SWITCH(show_icon_switch), G_OBJECT(plugin), "show-icon");
 	label = gtk_label_new("Show icon");
 	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, 1, 1, 1);
-	gtk_grid_attach(GTK_GRID(grid), show_icon_toggle, 1, 1, 1, 1);
+	gtk_grid_attach(GTK_GRID(grid), show_icon_switch, 1, 1, 1, 1);
 
 	// spacing
 	widget = gtk_spin_button_new_with_range(SPACING_MIN, SPACING_MAX, 1.0);
@@ -100,21 +109,21 @@ void wintitle_plugin_configure(XfcePanelPlugin *panel_plugin) {
 	gtk_grid_attach(GTK_GRID(grid), label, 0, 2, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), widget, 1, 2, 1, 1);
 
-	g_object_bind_property(G_OBJECT(show_icon_toggle), "active", G_OBJECT(widget), "sensitive", G_BINDING_DEFAULT);
-	g_object_bind_property(G_OBJECT(show_icon_toggle), "active", G_OBJECT(label), "sensitive", G_BINDING_DEFAULT);
+	g_object_bind_property(G_OBJECT(show_icon_switch), "active", G_OBJECT(widget), "sensitive", G_BINDING_DEFAULT);
+	g_object_bind_property(G_OBJECT(show_icon_switch), "active", G_OBJECT(label), "sensitive", G_BINDING_DEFAULT);
 	gtk_widget_set_sensitive(widget, show_icon);
 	gtk_widget_set_sensitive(label, show_icon);
 
 	// use-mini-icon
-	widget = gtk_check_button_new_with_label("");
+	widget = gtk_check_button_new();
 	wintitle_plugin_bind_toggle_value_to(GTK_TOGGLE_BUTTON(widget), G_OBJECT(plugin), "use-mini-icon");
 	label = gtk_label_new("Use mini icon");
 	gtk_label_set_xalign(GTK_LABEL(label), 0);
 	gtk_grid_attach(GTK_GRID(grid), label, 0, 3, 1, 1);
 	gtk_grid_attach(GTK_GRID(grid), widget, 1, 3, 1, 1);
 
-	g_object_bind_property(G_OBJECT(show_icon_toggle), "active", G_OBJECT(widget), "sensitive", G_BINDING_DEFAULT);
-	g_object_bind_property(G_OBJECT(show_icon_toggle), "active", G_OBJECT(label), "sensitive", G_BINDING_DEFAULT);
+	g_object_bind_property(G_OBJECT(show_icon_switch), "active", G_OBJECT(widget), "sensitive", G_BINDING_DEFAULT);
+	g_object_bind_property(G_OBJECT(show_icon_switch), "active", G_OBJECT(label), "sensitive", G_BINDING_DEFAULT);
 	gtk_widget_set_sensitive(widget, show_icon);
 	gtk_widget_set_sensitive(label, show_icon);
 
