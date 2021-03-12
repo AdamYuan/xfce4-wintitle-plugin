@@ -145,6 +145,12 @@ static void wintitle_plugin_construct(XfcePanelPlugin *panel_plugin) {
 
 static void wintitle_plugin_free_data(XfcePanelPlugin *panel_plugin) {
 	WintitlePlugin *plugin = XFCE_WINTITLE_PLUGIN(panel_plugin);
+	if (plugin->window && WNCK_IS_WINDOW(plugin->window)) {
+		g_signal_handlers_disconnect_by_func(G_OBJECT(plugin->window), G_CALLBACK(wintitle_plugin_window_name_changed),
+		                                     plugin);
+		g_signal_handlers_disconnect_by_func(G_OBJECT(plugin->window), G_CALLBACK(wintitle_plugin_window_icon_changed),
+		                                     plugin);
+	}
 	g_signal_handlers_disconnect_by_func(G_OBJECT(plugin->screen), G_CALLBACK(wintitle_plugin_active_window_changed),
 	                                     plugin);
 }
