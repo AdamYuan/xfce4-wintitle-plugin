@@ -54,5 +54,5 @@ target_link_libraries(wintitle ${XFCE4UTIL_LIBRARY_DIRS})
 target_link_libraries(wintitle ${XFCONF_LIBRARY_DIRS})
 target_link_libraries(wintitle ${WNCK_LIBRARY_DIRS})
 
-INSTALL(TARGETS wintitle LIBRARY DESTINATION /usr/lib/xfce4/panel/plugins/)
-INSTALL(FILES wintitle.desktop DESTINATION /usr/share/xfce4/panel/plugins/)
+INSTALL(TARGETS wintitle LIBRARY DESTINATION lib/xfce4/panel/plugins/)
+INSTALL(FILES wintitle.desktop DESTINATION share/xfce4/panel/plugins/)
